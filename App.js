@@ -10,6 +10,6 @@ app.use(bodyParser.json());
 app.use("/users", userRoutes);
 const port = 3000;
 
-app.listen(port || process.env.PORT, () =>
+app.listen(process.env.PORT || port, () =>
   console.log(`listening on port ${port}!`)
 );
