@@ -13,6 +13,8 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, "Use can not be registered without password"],
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
 });
 
 const userModel = mongoose.model("Users", UserSchema);
