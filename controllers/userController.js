@@ -89,9 +89,16 @@ exports.forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Email Do not exist" });
     }
+    const resetTime = Date.now() + 30 * 60 * 1000;
     const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY);
-    user.resetPasswordToken = token;
-    user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+    await User.findByIdAndUpdate(
+      user._id,
+      {
+        resetPasswordToken: token,
+        resetPasswordExpire: resetTime,
+      },
+      { new: true }
+    );
     res.json({
       message: "Forgot password",
       token: user.resetPasswordToken,
@@ -105,7 +112,8 @@ exports.forgotPassword = async (req, res) => {
 //Resetting password
 exports.resetPassword = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.user.id });
+    const decoded = jwt.verify(req.params.token, process.env.SECRET_KEY);
+    const user = await User.findOne({ _id: decoded?.id });
     if (!user) {
       return res.status(401).json({
         message:
@@ -115,7 +123,10 @@ exports.resetPassword = async (req, res) => {
     if (req.body?.newPassword != req.body?.confirmPassword) {
       return res.status(401).json({ message: "Password does not match" });
     }
+
     user.password = bcrypt.hash(req.body.newPassword, 12);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
     res.status(200).json({ message: "Reset password Successfull" });
   } catch (error) {
     res.status(404).json({ message: error.message });
