@@ -5,6 +5,7 @@ const {
   deleteUser,
   updateUser,
   getAllUsers,
+  forgotPassword,
 } = require("../controllers/userController");
 const { auth } = require("../middlewares/auth");
 
@@ -14,4 +15,5 @@ router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 router.route("/delete-user").delete(auth, deleteUser);
 router.route("/update-user").patch(auth, updateUser);
+router.route("/forgot-password").post(forgotPassword);
 module.exports = router;

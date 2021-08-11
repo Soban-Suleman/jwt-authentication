@@ -81,3 +81,21 @@ exports.updateUser = async (req, res) => {
     res.status(200).json({ message: "User Updated" });
   } catch (error) {}
 };
+
+//Forgot password
+exports.forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(401).json({ message: "Email Do not exist" });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY);
+    user.resetPasswordToken = token;
+    user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+    res.json({ message: "Forgot password", token });
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+//Resetting password
